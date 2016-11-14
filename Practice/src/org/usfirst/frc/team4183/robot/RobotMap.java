@@ -9,11 +9,11 @@ package org.usfirst.frc.team4183.robot;
  */
 public class RobotMap
 {
-    public static double wheelBase_m = 0.6096;  // 24 inches... FIXME with final value
+    public static double wheelTrack_m = 0.4572;  // 18 inches
     
     // These are the current assignments for the practice robot.
-    public static int leftMotor0 = 1;
-    public static int leftMotor1 = 2;
+    public static int leftMotor0 = 2;
+    public static int leftMotor1 = 1;
 
     public static int rightMotor0 = 9;
     public static int rightMotor1 = 10;

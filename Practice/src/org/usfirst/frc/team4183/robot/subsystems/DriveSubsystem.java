@@ -33,7 +33,7 @@ import edu.wpi.first.wpilibj.RobotDrive; // A class that provides predefined con
 public class DriveSubsystem extends Subsystem
 {
     // Keep track of the parameters of our drive subsystem
-    private double wheelBase_m;     // Needed for autonomous driving
+    private double wheelTrack_m;     // Needed for autonomous driving
     
     // Create motor controllers
     // In this case our robot has CANTalon (i.e., Talon SRX motor controllers
@@ -50,9 +50,9 @@ public class DriveSubsystem extends Subsystem
     /**
      * Constructor
      */
-    public DriveSubsystem(double aWheelBase_m)
+    public DriveSubsystem(double aWheelTrack_m)
     {
-        wheelBase_m = aWheelBase_m;
+        wheelTrack_m = aWheelTrack_m;
         
         // Instantiate the motor controllers mapped to the IDs defined for our
         // robot
@@ -234,9 +234,9 @@ public class DriveSubsystem extends Subsystem
     public void autoDrive(double speedCoefficient, double radius_m)
     {
         // Do nothing if the wheelBase_m is zero
-        if (wheelBase_m != 0.0)
+        if (wheelTrack_m != 0.0)
         {
-           robotDrive.drive(speedCoefficient, Math.pow(Math.E,radius_m / wheelBase_m));
+           robotDrive.drive(speedCoefficient, Math.exp(-radius_m / wheelTrack_m));
         }
     }
 

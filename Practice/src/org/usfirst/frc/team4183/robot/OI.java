@@ -56,11 +56,11 @@ public class OI
     // Provide better names for each joystick axis
     
     // RIGHT THUMB DRIVE CONTROL ON SINGLE JOYSTICK
-    private static final AxisType speedCommandAxis = AxisType.kTwist; // forward/backward
-                                                                      // on RIGHT joystick
+    private static final AxisType speedCommandAxis = AxisType.kY; // forward/backward
+                                                                      // on LEFT joystick
                                                                       // of DualShock 4
-    private static final AxisType turnCommandAxis = AxisType.kZ;      // left/right
-                                                                      // on RIGHT joystick of
+    private static final AxisType turnCommandAxis = AxisType.kX;      // left/right
+                                                                      // on LEFT joystick of
                                                                       // DualShock 4
 
     /**

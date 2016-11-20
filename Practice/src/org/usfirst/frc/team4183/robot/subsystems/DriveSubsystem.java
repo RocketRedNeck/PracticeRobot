@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import org.usfirst.frc.team4183.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.CANTalon; // The type of motor controller we are using
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.RobotDrive; // A class that provides predefined controls for the motors
 
 /**
@@ -286,4 +287,33 @@ public class DriveSubsystem extends Subsystem
         leftMotor1.enableBrakeMode(brakeMode);
         rightMotor1.enableBrakeMode(brakeMode);
     }
+    
+    /**
+     * 
+     */
+    public void enablePositionMode()
+    {
+        leftMotor0.changeControlMode(TalonControlMode.Position);
+        leftMotor1.changeControlMode(TalonControlMode.Follower);
+        leftMotor1.set(leftMotor0.getDeviceID());
+        
+        rightMotor0.changeControlMode(TalonControlMode.Position);
+        rightMotor1.changeControlMode(TalonControlMode.Follower);
+        rightMotor1.set(rightMotor0.getDeviceID());
+        
+    }
+    
+    /**
+     * 
+     */    
+    public void disablePositionMode()
+    {
+        leftMotor0.changeControlMode(TalonControlMode.PercentVbus);
+        leftMotor1.changeControlMode(TalonControlMode.PercentVbus);
+        
+        rightMotor0.changeControlMode(TalonControlMode.PercentVbus);
+        rightMotor1.changeControlMode(TalonControlMode.PercentVbus);
+        
+    }
+   
 }

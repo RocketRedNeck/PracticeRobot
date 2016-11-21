@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import org.usfirst.frc.team4183.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.CANTalon; // The type of motor controller we are using
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.RobotDrive; // A class that provides predefined controls for the motors
 
@@ -34,7 +35,6 @@ import edu.wpi.first.wpilibj.RobotDrive; // A class that provides predefined con
 public class DriveSubsystem extends Subsystem
 {
     // Keep track of the parameters of our drive subsystem
-    private double wheelTrack_m;     // Needed for autonomous driving
     
     // Create motor controllers
     // In this case our robot has CANTalon (i.e., Talon SRX motor controllers
@@ -51,18 +51,37 @@ public class DriveSubsystem extends Subsystem
     /**
      * Constructor
      */
-    public DriveSubsystem(double aWheelTrack_m)
-    {
-        wheelTrack_m = aWheelTrack_m;
-        
+    public DriveSubsystem()
+    {    
         // Instantiate the motor controllers mapped to the IDs defined for our
         // robot
         // In our case we have four (4) motors defining the drive subsystem
+        
+        // Left Side
         leftMotor0 = new CANTalon(RobotMap.leftMotor0);
         leftMotor1 = new CANTalon(RobotMap.leftMotor1);
+                        
+        // Right Side
         rightMotor0 = new CANTalon(RobotMap.rightMotor0);
         rightMotor1 = new CANTalon(RobotMap.rightMotor1);
 
+        // Make second motor controller always follow the first
+        leftMotor1.changeControlMode(TalonControlMode.Follower);
+        leftMotor1.set(leftMotor0.getDeviceID());
+        
+        rightMotor0.changeControlMode(TalonControlMode.Follower);
+        rightMotor1.set(rightMotor0.getDeviceID());
+        
+        // Declare the encoder type for the controllers
+        // NOTE: The two (2) encoders are attached to only one controller each
+        // and since the other controllers a are following we will just
+        // 
+        leftMotor0.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        leftMotor0.configEncoderCodesPerRev(RobotMap.DRIVE_PULSES_PER_REV);
+        
+        rightMotor0.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        rightMotor0.configEncoderCodesPerRev(RobotMap.DRIVE_PULSES_PER_REV);
+        
         // Bind the motors into a single drive system
         // The RobotDrive class provides several interfaces that support
         // both autonomous and manual control (e.g., drive based on magnitude
@@ -71,13 +90,27 @@ public class DriveSubsystem extends Subsystem
         // We will have to provide methods for accessing the robotDrive object
         // through an instance of the DriveSubsystem.
         //
-        // Conveniently, the RobotDrive class accepts 2 or 4 motor solutionss
-        robotDrive = new RobotDrive(leftMotor0, leftMotor1, rightMotor0, rightMotor1);
+        // Conveniently, the RobotDrive class accepts 2 or 4 motor solutions
+        //
+        // Since we are slaving motors we just need to organize what looks like
+        // a 2 motor solution
+        robotDrive = new RobotDrive(leftMotor0, rightMotor0);
 
     }
 
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
+    
+    public void stop()
+    {
+        configureBrakeMode(true);
+        
+        // In follower modes, only the primary motor controller
+        // needs to be commanded
+        leftMotor0.set(0);
+        rightMotor0.set(0);
+    }
+      
 
     /**
      * The Command-based robot defines a method for initial commands to be
@@ -234,11 +267,9 @@ public class DriveSubsystem extends Subsystem
      */
     public void autoDrive(double speedCoefficient, double radius_m)
     {
-        // Do nothing if the wheelBase_m is zero
-        if (wheelTrack_m != 0.0)
-        {
-           robotDrive.drive(speedCoefficient, Math.exp(-radius_m / wheelTrack_m));
-        }
+
+        robotDrive.drive(speedCoefficient, 
+                         Math.signum(radius_m)*Math.exp(-Math.abs(radius_m) / RobotMap.WHEEL_TRACK_m));
     }
 
     /**
@@ -282,10 +313,11 @@ public class DriveSubsystem extends Subsystem
         // performance or stability. For our robot we are simply happy if
         // we can manually drive it and command some autonomous behaviors
         // for a few seconds.
+        
+        // NOTE: In follower configurations (slaving controllers) we only
+        // need to command the primary controller
         leftMotor0.enableBrakeMode(brakeMode);
         rightMotor0.enableBrakeMode(brakeMode);
-        leftMotor1.enableBrakeMode(brakeMode);
-        rightMotor1.enableBrakeMode(brakeMode);
     }
     
     /**
@@ -293,13 +325,9 @@ public class DriveSubsystem extends Subsystem
      */
     public void enablePositionMode()
     {
-        leftMotor0.changeControlMode(TalonControlMode.Position);
-        leftMotor1.changeControlMode(TalonControlMode.Follower);
-        leftMotor1.set(leftMotor0.getDeviceID());
-        
+        stop();
+        leftMotor0.changeControlMode(TalonControlMode.Position);        
         rightMotor0.changeControlMode(TalonControlMode.Position);
-        rightMotor1.changeControlMode(TalonControlMode.Follower);
-        rightMotor1.set(rightMotor0.getDeviceID());
         
     }
     
@@ -308,11 +336,9 @@ public class DriveSubsystem extends Subsystem
      */    
     public void disablePositionMode()
     {
-        leftMotor0.changeControlMode(TalonControlMode.PercentVbus);
-        leftMotor1.changeControlMode(TalonControlMode.PercentVbus);
-        
+        stop();
+        leftMotor0.changeControlMode(TalonControlMode.PercentVbus);        
         rightMotor0.changeControlMode(TalonControlMode.PercentVbus);
-        rightMotor1.changeControlMode(TalonControlMode.PercentVbus);
         
     }
    

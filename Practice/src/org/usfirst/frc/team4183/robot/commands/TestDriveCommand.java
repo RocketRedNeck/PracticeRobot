@@ -4,6 +4,7 @@ package org.usfirst.frc.team4183.robot.commands;
 import edu.wpi.first.wpilibj.command.Command;
 
 import org.usfirst.frc.team4183.robot.Robot;
+import org.usfirst.frc.team4183.robot.RobotMap;
 
 /**
  *
@@ -28,8 +29,8 @@ public class TestDriveCommand extends Command
     protected void execute()
     {
         // Just drive slowly in a circle until we are told otherwise
-        // 10% speed coefficient with a radius of 1.5 m (about 10 foot diameter)
-        Robot.driveSubsystem.autoDrive(0.1, 1.5);
+        Robot.driveSubsystem.autoDrive(RobotMap.FORWARD * 0.2, 
+                                       RobotMap.LEFT * 1.5);
     }
 
     // Make this return true when this Command no longer needs to run execute()
@@ -41,13 +42,13 @@ public class TestDriveCommand extends Command
     // Called once after isFinished returns true
     protected void end()
     {
+        Robot.driveSubsystem.stop();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted()
     {
-        // Stop the drive subsystem
-        Robot.driveSubsystem.autoDrive(0, 0);
+        end();
     }
 }

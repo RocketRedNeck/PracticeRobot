@@ -31,7 +31,7 @@ public class Robot extends IterativeRobot
 	// In our case we changed the ExampleSubsystem to the DriveSbsystem
     
     // We only ever need exactly one drive subsystem
-	public static final DriveSubsystem driveSubsystem = new DriveSubsystem(RobotMap.wheelTrack_m);
+	public static final DriveSubsystem driveSubsystem = new DriveSubsystem();
 	
 	// The operator interface (OI) instance was added by the Command-based
 	// project wizard. It is just the place "they" expect us to add our
@@ -64,7 +64,7 @@ public class Robot extends IterativeRobot
         
         // Send the choose data to the dashboard so the user
         // will see the available choices
-        SmartDashboard.putData("Auto mode", chooser);
+        SmartDashboard.putData("Autonomous Chooser", chooser);
     }
 	
 	/**

@@ -1,4 +1,4 @@
+*.class
 /bin/
 /build/
-/.settings
-*.class
+/dist/

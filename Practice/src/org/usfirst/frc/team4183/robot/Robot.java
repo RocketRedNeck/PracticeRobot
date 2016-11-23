@@ -1,21 +1,19 @@
 
 package org.usfirst.frc.team4183.robot;
 
-import edu.wpi.first.wpilibj.IterativeRobot;
+import org.usfirst.frc.team4183.robot.OI;
 
+import org.usfirst.frc.team4183.robot.commands.DoNothingCommand;
+import org.usfirst.frc.team4183.robot.commands.MoveCommand;
+import org.usfirst.frc.team4183.robot.commands.TestDriveCommand;
+import org.usfirst.frc.team4183.robot.subsystems.DriveSubsystem;
+
+import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.command.Command;
 import edu.wpi.first.wpilibj.command.Scheduler;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-// These imports are specific to our robot, rather than the
-// above items that were added by the Command-based project wizard
-import java.lang.Math;
-import org.usfirst.frc.team4183.robot.OI;
-import org.usfirst.frc.team4183.robot.commands.DoNothingCommand;
-import org.usfirst.frc.team4183.robot.commands.TestDriveCommand;
-import org.usfirst.frc.team4183.robot.subsystems.DriveSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -61,7 +59,8 @@ public class Robot extends IterativeRobot
     	// Add items to the dashboard menu for the user to select
         chooser.addDefault("Default Auto", new DoNothingCommand());
         chooser.addObject( "Auto Test Drive", new TestDriveCommand());
-        
+        chooser.addObject( "1 Meter Forward", new MoveCommand(RobotMap.FORWARD * 1.0));
+        chooser.addObject( "1 Meter Backward", new MoveCommand(RobotMap.BACKWARD * 1.0));        
         // Send the choose data to the dashboard so the user
         // will see the available choices
         SmartDashboard.putData("Autonomous Chooser", chooser);

@@ -22,7 +22,7 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 import org.usfirst.frc.team4183.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.CANTalon; // The type of motor controller we are using
-import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDeviceStatus;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.RobotDrive; // A class that provides predefined controls for the motors
 
@@ -76,10 +76,10 @@ public class DriveSubsystem extends Subsystem
         // NOTE: The two (2) encoders are attached to only one controller each
         // and since the other controllers a are following we will just
         // 
-        leftMotor0.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        leftMotor0.setFeedbackDevice(RobotMap.DRIVE_ENCODER_TYPE);
         leftMotor0.configEncoderCodesPerRev(RobotMap.DRIVE_PULSES_PER_REV);
         
-        rightMotor0.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        rightMotor0.setFeedbackDevice(RobotMap.DRIVE_ENCODER_TYPE);
         rightMotor0.configEncoderCodesPerRev(RobotMap.DRIVE_PULSES_PER_REV);
         
         // Bind the motors into a single drive system
@@ -271,7 +271,8 @@ public class DriveSubsystem extends Subsystem
         robotDrive.drive(speedCoefficient, 
                          Math.signum(radius_m)*Math.exp(-Math.abs(radius_m) / RobotMap.WHEEL_TRACK_m));
     }
-
+    
+ 
     /**
      * configureBrakeMode - each motor controller has a brake mode to determine
      * if the motor will inductively halt when commands go to zero, or coast to
@@ -323,18 +324,159 @@ public class DriveSubsystem extends Subsystem
     /**
      * 
      */
+    private void _enablePositionMode(CANTalon aController)
+    {
+        aController.changeControlMode(TalonControlMode.Position);
+        aController.setPosition(0.0); // resets the encoder position to 0
+        aController.setP(RobotMap.DRIVE_POSITION_P);
+        aController.setI(RobotMap.DRIVE_POSITION_I);
+        aController.setD(RobotMap.DRIVE_POSITION_D);
+        aController.setF(RobotMap.DRIVE_POSITION_F);
+    }
     public void enablePositionMode()
     {
         stop();
-        leftMotor0.changeControlMode(TalonControlMode.Position);        
-        rightMotor0.changeControlMode(TalonControlMode.Position);
+        _enablePositionMode(leftMotor0);
+        _enablePositionMode(rightMotor0);
+    }
+    public void maintainPosition(double position_m)     // Must call this repeatedly
+    {
+        // RobotDrive does not have interfaces to support
+        // moving a distance based on encoders, so we
+        // must specify our own
+        FeedbackDeviceStatus leftStatus  = leftMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        FeedbackDeviceStatus rightStatus = rightMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
         
+        // For now, if either sensor is not present the position control
+        // will not function and an error state will be declared
+        // TODO: future design may attempt a fall back by temporarily 
+        // slaving all controllers to the master that has the working sensor.
+        if ((FeedbackDeviceStatus.FeedbackStatusPresent == leftStatus) &&
+            (FeedbackDeviceStatus.FeedbackStatusPresent == rightStatus))
+        {
+            if ((leftMotor0.getControlMode() == TalonControlMode.Position) &&
+                (rightMotor0.getControlMode() == TalonControlMode.Position))
+            {
+                // Trig 101: arclen = angle * radius --> angle = arclen / radius
+                double angle_rad = position_m / RobotMap.WHEEL_RADIUS_m;
+                
+                double encoderTarget = RobotMap.WHEEL_TO_ENCODER * angle_rad / (Math.PI * 2.0);
+                
+                leftMotor0.set(encoderTarget);
+                rightMotor0.set(encoderTarget);
+            }
+            else
+            {
+                // Enable on this pass and make user call again
+                enablePositionMode();
+            }
+        }
+        else
+        {
+            // TODO: Insert error notification
+        }
     }
     
+    public boolean areWeThereYet(double position_m)
+    {
+        boolean weAreThere = false; // Until proven otherwise
+        
+        FeedbackDeviceStatus leftStatus  = leftMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        FeedbackDeviceStatus rightStatus = rightMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        
+        // For now, if either sensor is not present the position control
+        // will not function and an error state will be declared
+        // TODO: future design may attempt a fall back by temporarily 
+        // slaving all controllers to the master that has the working sensor.
+        if ((FeedbackDeviceStatus.FeedbackStatusPresent == leftStatus) &&
+            (FeedbackDeviceStatus.FeedbackStatusPresent == rightStatus))
+        {
+            if ((leftMotor0.getControlMode() == TalonControlMode.Position) &&
+                (rightMotor0.getControlMode() == TalonControlMode.Position))
+            {
+                // Trig 101: arclen = angle * radius --> angle = arclen / radius
+                double angle_rad = position_m / RobotMap.WHEEL_RADIUS_m;
+                
+                double encoderTarget = RobotMap.WHEEL_TO_ENCODER * angle_rad / (Math.PI * 2.0);
+                
+                if ((leftMotor0.getPosition() == encoderTarget) &&
+                    (rightMotor0.getPosition() == encoderTarget))
+                {
+                    weAreThere = true;
+                }
+            }
+            else
+            {
+                // TODO: Insert error notification
+            }
+        }
+        else
+        {
+            // TODO: Insert error notification
+        }
+        
+        return weAreThere;
+    }
+
+    private void _enableSpeedMode(CANTalon aController)
+    {
+        aController.changeControlMode(TalonControlMode.Speed);
+        aController.setPosition(0.0); // resets the encoder position to 0
+        aController.setP(RobotMap.DRIVE_SPEED_P);
+        aController.setI(RobotMap.DRIVE_SPEED_I);
+        aController.setD(RobotMap.DRIVE_SPEED_D);
+        aController.setF(RobotMap.DRIVE_SPEED_F);
+    }
+
+    public void enableSpeedMode()
+    {
+        stop();
+        _enableSpeedMode(leftMotor0);
+        _enableSpeedMode(rightMotor0);      
+    }
+    
+    public void maintainSpeed(double speed_mps)     // Must call this repeatedly
+    {
+        // RobotDrive does not have interfaces to support
+        // moving a distance based on encoders, so we
+        // must specify our own
+        FeedbackDeviceStatus leftStatus  = leftMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        FeedbackDeviceStatus rightStatus = rightMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        
+        // For now, if either sensor is not present the position control
+        // will not function and an error state will be declared
+        // TODO: future design may attempt a fall back by temporarily 
+        // slaving all controllers to the master that has the working sensor.
+        if ((FeedbackDeviceStatus.FeedbackStatusPresent == leftStatus) &&
+            (FeedbackDeviceStatus.FeedbackStatusPresent == rightStatus))
+        {
+            if ((leftMotor0.getControlMode() == TalonControlMode.Speed) &&
+                (rightMotor0.getControlMode() == TalonControlMode.Speed))
+            {
+                // Trig 101: arcrate = anglerate * radius --> anglerate = arcrate / radius
+                double angle_radPerSec = speed_mps / RobotMap.WHEEL_RADIUS_m;
+                
+                double encoderTarget = RobotMap.WHEEL_TO_ENCODER * angle_radPerSec / (Math.PI * 2.0);
+                
+                leftMotor0.set(encoderTarget);
+                rightMotor0.set(encoderTarget);
+            }
+            else
+            {
+                // Enable on this pass and make user call again
+                enableSpeedMode();
+            }
+        }
+        else
+        {
+            // TODO: Insert error notification
+        }
+        
+    }    
     /**
      * 
      */    
-    public void disablePositionMode()
+    public void enablePercentMode()
     {
         stop();
         leftMotor0.changeControlMode(TalonControlMode.PercentVbus);        

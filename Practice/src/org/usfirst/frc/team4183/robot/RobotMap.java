@@ -1,6 +1,7 @@
 package org.usfirst.frc.team4183.robot;
 
 import java.lang.Math;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 
 
 /**
@@ -15,6 +16,7 @@ public class RobotMap
     // Physical constants
     // **********************************************************************
     public static final double WHEEL_DIAMETER_m = 0.2286;  // 9 inch tire
+    public static final double WHEEL_RADIUS_m = WHEEL_DIAMETER_m / 2.0;
     
     public static final double WHEEL_TRACK_m = 0.4572;     // 18 inches center to center... []<--track-->[]
                                                            //                                      ^
@@ -43,7 +45,7 @@ public class RobotMap
     public static final double LEFT     =  1.0;
     
     // **********************************************************************
-    // Encoder scalings
+    // Encoder type and scalings
     // NOTE: There are a couple of options for using wheelToEncoder and drivePulsesPerRev
     // since what we really want to control is wheel rotations. It is probably safer to
     // build an interface that takes body distance or angle, converts to wheel angle, then
@@ -53,6 +55,7 @@ public class RobotMap
     // When setting up motor controller object, the encoder scaling is used
     // to communicate position and velocity information in units of rotations
     // rather than code pulses.
+    public static final FeedbackDevice DRIVE_ENCODER_TYPE = FeedbackDevice.QuadEncoder;
     public static final int DRIVE_PULSES_PER_REV = 1024;     // AMT103 can do up to 2048 but this is 
                                                              // current DIP switch settings
     
@@ -61,7 +64,15 @@ public class RobotMap
     // PID Constants
     // **********************************************************************
     
+    public static final double DRIVE_POSITION_P = 0.2;  // To be tuned as needed
+    public static final double DRIVE_POSITION_I = 0.0;
+    public static final double DRIVE_POSITION_D = 0.0;
+    public static final double DRIVE_POSITION_F = 0.0;   
     
+    public static final double DRIVE_SPEED_P = 0.2;  // To be tuned as needed
+    public static final double DRIVE_SPEED_I = 0.0;
+    public static final double DRIVE_SPEED_D = 0.0;
+    public static final double DRIVE_SPEED_F = 0.0;   
     
     // **********************************************************************
     // Port Assignment

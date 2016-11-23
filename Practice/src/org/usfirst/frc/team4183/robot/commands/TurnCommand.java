@@ -4,18 +4,18 @@ import org.usfirst.frc.team4183.robot.Robot;
 
 import edu.wpi.first.wpilibj.command.Command;
 
-
 /**
  *
  */
-public class MoveCommand extends Command 
-{
-    private double meters;
-    private double tolerance_m;
-    public MoveCommand(double aMeters, double aTolerance_m) 
+public class TurnCommand extends Command {
+
+    private double orientation_deg;
+    private double tolerance_deg;
+    
+    public TurnCommand(double anOrientation_deg, double aTolerance_deg) 
     {
-        meters = aMeters;    // The simple way to remember between cycles
-        tolerance_m = aTolerance_m;
+        orientation_deg = anOrientation_deg;
+        tolerance_deg = aTolerance_deg;
         
         // Use requires() here to declare subsystem dependencies
         requires(Robot.driveSubsystem);
@@ -24,26 +24,24 @@ public class MoveCommand extends Command
     // Called just before this Command runs the first time
     protected void initialize() 
     {
-        // Initialization and execution of the position maintenance
+        // Initialization and execution of the orientation maintenance
         // is the same function call. The first call will change
-        // the subsystem mode internally, but position maintenance
-        // must be called repeatedly (execute) to hold the position
+        // the subsystem mode internally, but orientation maintenance
+        // must be called repeatedly (execute) to hold the orientation
         // with force
-        Robot.driveSubsystem.maintainPosition(meters);
-
+        Robot.driveSubsystem.maintainOrientation(orientation_deg);
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() 
     {
-        Robot.driveSubsystem.maintainPosition(meters);
+        Robot.driveSubsystem.maintainOrientation(orientation_deg);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() 
     {
-        // Return true when motors reached the desired distance
-        return Robot.driveSubsystem.inPosition(meters, tolerance_m);
+        return Robot.driveSubsystem.atOrientation(orientation_deg, tolerance_deg);
     }
 
     // Called once after isFinished returns true
@@ -56,6 +54,6 @@ public class MoveCommand extends Command
     // subsystems is scheduled to run
     protected void interrupted() 
     {
-        end();  // Just call end unless there is some special case at an interrupt boundary     
+        end();  // Just call end unless there is some special case at an interrupt boundary
     }
 }

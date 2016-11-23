@@ -339,6 +339,14 @@ public class DriveSubsystem extends Subsystem
         _enablePositionMode(leftMotor0);
         _enablePositionMode(rightMotor0);
     }
+    
+    /**
+     * 
+     * @param position_m - at this interface forward > 0, backward < 0
+     * 
+     * Caller should use FORWARD/BACKWARD constants multiplied by the desired angle
+     * to clarify any system-level inversions
+     */
     public void maintainPosition(double position_m)     // Must call this repeatedly
     {
         // RobotDrive does not have interfaces to support
@@ -377,7 +385,7 @@ public class DriveSubsystem extends Subsystem
         }
     }
     
-    public boolean areWeThereYet(double position_m)
+    public boolean inPosition(double position_m, double tolerance_m)
     {
         boolean weAreThere = false; // Until proven otherwise
         
@@ -397,10 +405,14 @@ public class DriveSubsystem extends Subsystem
                 // Trig 101: arclen = angle * radius --> angle = arclen / radius
                 double angle_rad = position_m / RobotMap.WHEEL_RADIUS_m;
                 
+                double tolerance_rad = tolerance_m / RobotMap.WHEEL_RADIUS_m;
+                
                 double encoderTarget = RobotMap.WHEEL_TO_ENCODER * angle_rad / (Math.PI * 2.0);
                 
-                if ((leftMotor0.getPosition() == encoderTarget) &&
-                    (rightMotor0.getPosition() == encoderTarget))
+                double encoderTolerance = RobotMap.WHEEL_TO_ENCODER * tolerance_rad / (Math.PI * 2.0);
+                
+                if ((Math.abs(leftMotor0.getPosition() - encoderTarget) <= encoderTolerance) &&
+                    (Math.abs(rightMotor0.getPosition() - encoderTarget) <= encoderTolerance))
                 {
                     weAreThere = true;
                 }
@@ -418,6 +430,89 @@ public class DriveSubsystem extends Subsystem
         return weAreThere;
     }
 
+    /**
+     * 
+     * @param angle_deg - Meaning at this interface is left < 0, right > 0
+     * 
+     * Caller should use RIGHT/LEFT constants multiplied by the desired angle
+     * to clarify any system-level inversions
+     */
+    public void maintainOrientation(double angle_deg)     // Must call this repeatedly
+    {
+        // RobotDrive does not have interfaces to support
+        // moving a distance based on encoders, so we
+        // must specify our own
+        FeedbackDeviceStatus leftStatus  = leftMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        FeedbackDeviceStatus rightStatus = rightMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        
+        // For now, if either sensor is not present the position control
+        // will not function and an error state will be declared
+        // TODO: future design may attempt a fall back by temporarily 
+        // slaving all controllers to the master that has the working sensor.
+        if ((FeedbackDeviceStatus.FeedbackStatusPresent == leftStatus) &&
+            (FeedbackDeviceStatus.FeedbackStatusPresent == rightStatus))
+        {
+            if ((leftMotor0.getControlMode() == TalonControlMode.Position) &&
+                (rightMotor0.getControlMode() == TalonControlMode.Position))
+            {
+                double encoderTarget = RobotMap.WHEEL_TO_ENCODER * RobotMap.DIAMETER_TO_TRACK * angle_deg / 360.0;
+                
+                // Motors must move in opposite direction to rotate about robot center
+                leftMotor0.set(encoderTarget);
+                rightMotor0.set(-encoderTarget);
+            }
+            else
+            {
+                // Enable on this pass and make user call again
+                enablePositionMode();
+            }
+        }
+        else
+        {
+            // TODO: Insert error notification
+        }
+    }    
+    
+    public boolean atOrientation(double angle_deg, double tolerance_deg)
+    {
+        boolean weAreThere = false; // Until proven otherwise
+        
+        FeedbackDeviceStatus leftStatus  = leftMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        FeedbackDeviceStatus rightStatus = rightMotor0.isSensorPresent(RobotMap.DRIVE_ENCODER_TYPE);
+        
+        // For now, if either sensor is not present the position control
+        // will not function and an error state will be declared
+        // TODO: future design may attempt a fall back by temporarily 
+        // slaving all controllers to the master that has the working sensor.
+        if ((FeedbackDeviceStatus.FeedbackStatusPresent == leftStatus) &&
+            (FeedbackDeviceStatus.FeedbackStatusPresent == rightStatus))
+        {
+            if ((leftMotor0.getControlMode() == TalonControlMode.Position) &&
+                (rightMotor0.getControlMode() == TalonControlMode.Position))
+            {
+                double encoderTarget = RobotMap.WHEEL_TO_ENCODER * RobotMap.DIAMETER_TO_TRACK * angle_deg / 360.0;
+                
+                double encoderTolerance = RobotMap.WHEEL_TO_ENCODER * RobotMap.DIAMETER_TO_TRACK * tolerance_deg / 360.0;
+                
+                if ((Math.abs(leftMotor0.getPosition() - encoderTarget) <= encoderTolerance) &&
+                    (Math.abs(rightMotor0.getPosition() - encoderTarget) <= encoderTolerance))
+                {
+                    weAreThere = true;
+                }
+            }
+            else
+            {
+                // TODO: Insert error notification
+            }
+        }
+        else
+        {
+            // TODO: Insert error notification
+        }
+        
+        return weAreThere;
+    }
+    
     private void _enableSpeedMode(CANTalon aController)
     {
         aController.changeControlMode(TalonControlMode.Speed);

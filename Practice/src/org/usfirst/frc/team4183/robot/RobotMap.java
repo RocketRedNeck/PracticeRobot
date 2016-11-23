@@ -28,6 +28,7 @@ public class RobotMap
     public static final double TRACK_TO_DIAMETER = WHEEL_DIAMETER_m / WHEEL_TRACK_m;  // Multiply by this to
                                                                                       // convert wheel angle to
                                                                                       // body angle for rotation
+    public static final double DIAMETER_TO_TRACK = 1.0 / TRACK_TO_DIAMETER;
     
     public static final double WHEEL_TO_ENCODER = 3.0;  // 1 rotation of wheel = 3 rotations of encoder
                                                         // This ratio was determined experimentally but

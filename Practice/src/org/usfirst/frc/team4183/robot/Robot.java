@@ -7,6 +7,7 @@ import org.usfirst.frc.team4183.robot.commands.DoNothingCommand;
 import org.usfirst.frc.team4183.robot.commands.MoveCommand;
 import org.usfirst.frc.team4183.robot.commands.TurnCommand;
 import org.usfirst.frc.team4183.robot.commands.TestDriveCommand;
+import org.usfirst.frc.team4183.robot.commands.SquareCommand;
 
 import org.usfirst.frc.team4183.robot.subsystems.DriveSubsystem;
 
@@ -64,7 +65,9 @@ public class Robot extends IterativeRobot
         chooser.addObject( "1 Meter Forward", new MoveCommand(RobotMap.FORWARD * 1.0, 0.05));
         chooser.addObject( "1 Meter Backward", new MoveCommand(RobotMap.BACKWARD * 1.0, 0.05));        
         chooser.addObject( "45 deg Right", new TurnCommand(RobotMap.RIGHT * 45.0, 1.0));
-        chooser.addObject( "45 deg Left", new TurnCommand(RobotMap.LEFT * 45.0, 1.0));        
+        chooser.addObject( "45 deg Left", new TurnCommand(RobotMap.LEFT * 45.0, 1.0));   
+        chooser.addObject( "Square", new SquareCommand());   
+        
         // Send the choose data to the dashboard so the user
         // will see the available choices
         SmartDashboard.putData("Autonomous Chooser", chooser);

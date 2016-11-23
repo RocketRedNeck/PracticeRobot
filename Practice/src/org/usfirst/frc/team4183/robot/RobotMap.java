@@ -1,6 +1,5 @@
 package org.usfirst.frc.team4183.robot;
 
-import java.lang.Math;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 
 

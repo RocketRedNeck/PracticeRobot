@@ -189,7 +189,7 @@ public class DriveSubsystem extends Subsystem
      * is known as "tank drive" See the tankDrive function for more information.
      * --------------------------------------------------------------------------
      */
-    public void arcadeDrive(double speed, double turn)
+    public double arcadeDrive(double speed, double turn)
     {
         // The underlying definition of arcadeDrive is not clear if the
         // inputs will be limited; because the documentation is incomplete
@@ -197,7 +197,15 @@ public class DriveSubsystem extends Subsystem
         // we find that drive and turn values are coefficients from -1 to +1
         // and will be enforced by the RobotDrive class; this means there
         // is nothing more to do here.
-        robotDrive.arcadeDrive(speed, turn);
+    	
+        // Create a linear decay of turning power where 100% power into the turn when no speed
+        // but never more than 50% power into the turn when commanding max speed.
+      	double maxTurnFactor = 1.0 - Math.abs(speed) / 2.0;
+      	double modifiedTurn = (maxTurnFactor * turn);
+    	
+        robotDrive.arcadeDrive(speed, modifiedTurn);
+        
+        return modifiedTurn;
     }
 
     /**

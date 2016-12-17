@@ -161,14 +161,11 @@ public class Robot extends IterativeRobot
         // represent this moment in time (or as near a moment as we can get)
         double speedCoefficient = OI.getDriveSpeedCoefficient();
         double turnCoefficient  = OI.getTurnSpeedCoefficient();
-        
-        // Create a linear decay of turning power where 100% power into the turn when no speed
-        // but never more than 50% power into the turn when commanding max speed.
-      	double maxTurnFactor = 1.0 - Math.abs(speedCoefficient) / 2.0;
-      	double modifiedTurnCoefficient = (maxTurnFactor * turnCoefficient);
-      	
+              	
       	// Pass our desired speed/turn values to the drive subsystem
-      	driveSubsystem.arcadeDrive(speedCoefficient, modifiedTurnCoefficient);
+        // NOTE: The driveSubsystem may adjust our request to keep the robot
+        // from skidding out of control
+      	double modifiedTurnCoefficient = driveSubsystem.arcadeDrive(speedCoefficient, turnCoefficient);
       	
       	// To allow us to monitor what is going on each time
       	// the function runs, we will output something to the SmartDashboard

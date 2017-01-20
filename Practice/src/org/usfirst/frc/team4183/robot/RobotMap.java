@@ -1,6 +1,6 @@
 package org.usfirst.frc.team4183.robot;
 
-import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
+import com.ctre.CANTalon;
 
 
 /**
@@ -55,7 +55,7 @@ public class RobotMap
     // When setting up motor controller object, the encoder scaling is used
     // to communicate position and velocity information in units of rotations
     // rather than code pulses.
-    public static final FeedbackDevice DRIVE_ENCODER_TYPE = FeedbackDevice.QuadEncoder;
+    public static final CANTalon.FeedbackDevice DRIVE_ENCODER_TYPE = CANTalon.FeedbackDevice.QuadEncoder;
     public static final int DRIVE_PULSES_PER_REV = 1024;     // AMT103 can do up to 2048 but this is 
                                                              // current DIP switch settings
     

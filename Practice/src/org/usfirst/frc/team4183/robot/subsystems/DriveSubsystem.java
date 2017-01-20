@@ -21,9 +21,9 @@ import edu.wpi.first.wpilibj.command.Subsystem;
 // Import mappings, controller types, and other API elements we need to tie it all together
 import org.usfirst.frc.team4183.robot.RobotMap;
 
-import edu.wpi.first.wpilibj.CANTalon; // The type of motor controller we are using
-import edu.wpi.first.wpilibj.CANTalon.FeedbackDeviceStatus;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import com.ctre.CANTalon; // The type of motor controller we are using
+import com.ctre.CANTalon.FeedbackDeviceStatus;
+import com.ctre.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.RobotDrive; // A class that provides predefined controls for the motors
 
 /**
